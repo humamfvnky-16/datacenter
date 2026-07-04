@@ -7,6 +7,51 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Instalasi & Deployment (Virtualmin - smpn40.educore.web.id/datacenter)
+
+App ini dilayani nginx lewat subpath `/datacenter` (bukan domain/subdomain sendiri), via `alias` ke folder `public/`. Path server: `/home/smpn40.educore.web.id/apps/datacenter`.
+
+```bash
+cd /home/smpn40.educore.web.id/apps/datacenter
+
+# 1. Install dependency PHP & JS
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+
+# 2. Setup environment (skip jika .env sudah ada & sudah dikonfigurasi)
+cp .env.example .env
+php artisan key:generate
+
+# 3. Edit .env, pastikan minimal:
+#    APP_ENV=production
+#    APP_DEBUG=false
+#    APP_URL=https://smpn40.educore.web.id/datacenter   <-- WAJIB pakai path /datacenter
+#    ASSET_URL=https://smpn40.educore.web.id/datacenter
+#    DB_DATABASE, DB_USERNAME, DB_PASSWORD sesuai database Virtualmin
+
+# 4. Link storage publik (upload, dsb)
+php artisan storage:link
+
+# 5. Migrasi database
+php artisan migrate --force
+
+# 6. Cache config/route/view untuk performa produksi
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 7. Pastikan folder ini writable oleh user PHP-FPM (mis. www-data / user virtualmin)
+chmod -R 775 storage bootstrap/cache
+```
+
+> Catatan: `APP_URL` **harus** menyertakan `/datacenter` karena app ini diakses lewat subfolder di domain utama, bukan root. Tanpa ini, link (`url()`, `asset()`, redirect) yang di-generate Laravel akan salah (mengarah ke root domain, bukan ke `/datacenter`).
+
+Setelah itu reload PHP-FPM/nginx bila perlu:
+```bash
+sudo systemctl reload nginx
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
