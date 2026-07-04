@@ -35,54 +35,10 @@ class DatabaseSeeder extends Seeder
             AppSetting::updateOrCreate(['key' => $key], ['value' => $val, 'type' => $type, 'group' => $group]);
         }
 
-        // --- Roles & Permissions ---
-        $superAdmin = Role::firstOrCreate(['name' => 'super-admin'],
-            ['label' => 'Super Administrator', 'is_system' => true]);
-        $admin      = Role::firstOrCreate(['name' => 'admin'],
-            ['label' => 'Administrator', 'is_system' => true]);
-        $operator   = Role::firstOrCreate(['name' => 'operator'],
-            ['label' => 'Operator Data', 'is_system' => false]);
-
-        $permList = [
-            ['dashboard/index', 'Lihat Dashboard', 'umum'],
-            ['profil/index', 'Lihat Profil', 'umum'],
-            ['profil/password', 'Ubah Password', 'umum'],
-            ['sekolah/edit', 'Edit Profil Sekolah', 'datacenter'],
-            ['tahun-ajaran/*', 'Kelola Tahun Ajaran', 'datacenter'],
-            ['jurusan/*', 'Kelola Jurusan', 'datacenter'],
-            ['mapel/*', 'Kelola Mapel', 'datacenter'],
-            ['tingkat-kelas/*', 'Kelola Tingkat Kelas', 'datacenter'],
-            ['rombel/*', 'Kelola Rombel', 'datacenter'],
-            ['guru/*', 'Kelola Guru', 'datacenter'],
-            ['guru-mapel/*', 'Kelola Guru Mapel', 'datacenter'],
-            ['siswa/*', 'Kelola Siswa', 'datacenter'],
-            ['periodikal/*', 'Administrasi Periodikal (Kenaikan Kelas & Kelulusan)', 'datacenter'],
-        ];
-
-        $allPermIds = [];
-        $operatorPermIds = [];
-        foreach ($permList as [$perm, $label, $group]) {
-            $p = Permission::firstOrCreate(['permission' => $perm], ['label' => $label, 'group' => $group]);
-            $allPermIds[] = $p->id;
-            // operator: hanya datacenter (tanpa guru/sekolah/periodikal -- periodikal
-            // adalah operasi bulk yang mengubah data kelas/status ratusan siswa sekaligus)
-            if (in_array($group, ['umum', 'datacenter']) && !in_array($perm, ['sekolah/edit', 'guru/*', 'periodikal/*'])) {
-                $operatorPermIds[] = $p->id;
-            }
-        }
-        $superAdmin->permissions()->sync($allPermIds);
-        $admin->permissions()->sync($allPermIds);
-        $operator->permissions()->sync($operatorPermIds);
-
-        // --- Admin user ---
-        User::updateOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'name' => 'Administrator', 'password' => Hash::make('password'),
-                'role' => 'admin', 'role_id' => $superAdmin->id,
-                'account_status' => 'active', 'is_aktif' => true,
-            ]
-        );
+        // --- Roles, Permissions & Akun admin ---
+        // Dipisah ke RbacSeeder supaya bisa dijalankan sendiri di produksi tanpa
+        // data demo: php artisan db:seed --class=RbacSeeder --force
+        $this->call(RbacSeeder::class);
 
         // --- Sekolah ---
         Sekolah::updateOrCreate(['npsn' => '20200001'], [

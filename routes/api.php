@@ -29,8 +29,9 @@ Route::get('/ping', fn () => ['ok' => true, 'time' => now()->toIso8601String()])
 
 Route::prefix('v1')->group(function () {
 
-    // ---- Publik, tanpa token (dipakai landing page sekolah) ----
+    // ---- Publik, tanpa token (dipakai landing page & aplikasi klien) ----
     Route::get('public/stats', [PublicStatsController::class, 'show']);
+    Route::get('public/branding', [PublicStatsController::class, 'branding']);
 
     // ---- Read-only (list & detail) ----
     Route::middleware(['auth:sanctum', 'abilities:datacenter.read'])->group(function () {
