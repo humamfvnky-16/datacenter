@@ -47,6 +47,13 @@ class Rbac
             return $next($request);
         }
 
+        \Illuminate\Support\Facades\Log::info('RBAC-DEBUG', [
+        'email' => $user->email ?? null,
+        'routeName' => $routeName ?? null,
+        'cek_izin' => "$page/$action",
+        'punya_izin' => $user->getPermissions(),
+        ]);
+
         if (! $user->canAccess("$page/$action")) {
             abort(403, 'Anda tidak memiliki izin akses ke halaman ini.');
         }
