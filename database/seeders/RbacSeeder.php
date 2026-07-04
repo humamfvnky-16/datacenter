@@ -34,7 +34,7 @@ class RbacSeeder extends Seeder
             ['dashboard/index', 'Lihat Dashboard', 'umum'],
             ['profil/index', 'Lihat Profil', 'umum'],
             ['profil/password', 'Ubah Password', 'umum'],
-            ['sekolah/edit', 'Edit Profil Sekolah', 'datacenter'],
+            ['sekolah/*', 'Kelola Profil Sekolah', 'datacenter'],
             ['tahun-ajaran/*', 'Kelola Tahun Ajaran', 'datacenter'],
             ['jurusan/*', 'Kelola Jurusan', 'datacenter'],
             ['mapel/*', 'Kelola Mapel', 'datacenter'],
@@ -53,7 +53,7 @@ class RbacSeeder extends Seeder
             $allPermIds[] = $p->id;
             // operator: hanya datacenter (tanpa guru/sekolah/periodikal -- periodikal
             // adalah operasi bulk yang mengubah data kelas/status ratusan siswa sekaligus)
-            if (in_array($group, ['umum', 'datacenter']) && !in_array($perm, ['sekolah/edit', 'guru/*', 'periodikal/*'])) {
+            if (in_array($group, ['umum', 'datacenter']) && !in_array($perm, ['sekolah/*', 'guru/*', 'periodikal/*'])) {
                 $operatorPermIds[] = $p->id;
             }
         }
