@@ -9,8 +9,6 @@
     <div class="grid md:grid-cols-2 gap-4">
         <x-field name="kode_tahun_ajaran" label="Kode" :value="$item->kode_tahun_ajaran" required placeholder="2526"/>
         <x-field name="nama_tahun_ajaran" label="Nama" :value="$item->nama_tahun_ajaran" required placeholder="2025/2026"/>
-        <x-field type="select" name="semester" label="Semester" :value="$item->semester"
-                 :options="['Ganjil'=>'Ganjil','Genap'=>'Genap']" required/>
         <x-field name="tanggal_mulai" type="date" label="Tanggal Mulai" :value="optional($item->tanggal_mulai)->format('Y-m-d')"/>
         <x-field name="tanggal_selesai" type="date" label="Tanggal Selesai" :value="optional($item->tanggal_selesai)->format('Y-m-d')"/>
     </div>

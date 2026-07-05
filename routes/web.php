@@ -7,9 +7,9 @@ use App\Http\Controllers\Datacenter\GuruController;
 use App\Http\Controllers\Datacenter\GuruMapelController;
 use App\Http\Controllers\Datacenter\JurusanController;
 use App\Http\Controllers\Datacenter\MataPelajaranController;
+use App\Http\Controllers\Datacenter\PengaturanController;
 use App\Http\Controllers\Datacenter\PeriodikalController;
 use App\Http\Controllers\Datacenter\RombelController;
-use App\Http\Controllers\Datacenter\SekolahController;
 use App\Http\Controllers\Datacenter\SiswaController;
 use App\Http\Controllers\Datacenter\TahunAjaranController;
 use App\Http\Controllers\Datacenter\TingkatKelasController;
@@ -61,8 +61,8 @@ Route::middleware([
     Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 
     Route::middleware(['role:admin', 'rbac'])->group(function () {
-        Route::get('/sekolah', [SekolahController::class, 'edit'])->name('sekolah.edit');
-        Route::put('/sekolah', [SekolahController::class, 'update'])->name('sekolah.update');
+        Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
+        Route::put('/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
 
         Route::resource('tahun-ajaran', TahunAjaranController::class)
             ->except('show')->parameters(['tahun-ajaran' => 'tahunAjaran']);

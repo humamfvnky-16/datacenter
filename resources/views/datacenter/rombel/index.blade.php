@@ -20,7 +20,7 @@
     <select name="ta" class="select w-48">
         <option value="">Semua TA</option>
         @foreach($tahunAjaran as $ta)
-            <option value="{{ $ta->id }}" @selected(request('ta')==$ta->id)>{{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }})</option>
+            <option value="{{ $ta->id }}" @selected(request('ta')==$ta->id)>{{ $ta->nama_tahun_ajaran }}</option>
         @endforeach
     </select>
     <button class="btn-secondary"><x-icon name="search" class="w-4 h-4"/></button>

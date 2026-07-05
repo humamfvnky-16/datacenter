@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Models\Siswa;
@@ -12,8 +13,9 @@ use Illuminate\Support\Facades\Storage;
  * Endpoint publik (TANPA autentikasi) yang dipakai aplikasi lain dalam satu
  * ekosistem sekolah:
  *  - stats    : jumlah siswa/guru untuk landing page.
- *  - branding : identitas sekolah (nama + logo) sebagai SUMBER TUNGGAL, dipakai
- *               CBT & landing-page supaya logo/nama seragam di semua aplikasi.
+ *  - branding : identitas sekolah (nama + logo + background halaman login)
+ *               sebagai SUMBER TUNGGAL, dipakai CBT & landing-page supaya
+ *               seragam di semua aplikasi.
  * Sengaja hanya mengembalikan data non-sensitif supaya aman tanpa token.
  */
 class PublicStatsController extends Controller
@@ -40,11 +42,15 @@ class PublicStatsController extends Controller
             ? Storage::disk('public')->url($sekolah->logo)
             : null;
 
+        $loginBg = AppSetting::get('login_bg');
+        $loginBgUrl = $loginBg ? Storage::disk('public')->url($loginBg) : null;
+
         return response()->json([
             'data' => [
                 'school_name' => $sekolah->nama_sekolah ?? config('app.name'),
                 'logo'        => $logoUrl,
                 'favicon'     => $logoUrl, // favicon = logo yang sama
+                'login_bg'    => $loginBgUrl,
             ],
         ]);
     }

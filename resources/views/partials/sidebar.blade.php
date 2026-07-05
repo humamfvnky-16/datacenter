@@ -25,9 +25,6 @@
         </a>
 
         <div class="sidebar-section">Data Center</div>
-        <a href="{{ route('sekolah.edit') }}" class="sidebar-link {{ request()->routeIs('sekolah.*') ? 'active' : '' }}">
-            <x-icon name="grid"/> Profil Sekolah
-        </a>
         <a href="{{ route('tahun-ajaran.index') }}" class="sidebar-link {{ request()->routeIs('tahun-ajaran.*') ? 'active' : '' }}">
             <x-icon name="calendar"/> Tahun Ajaran
         </a>
@@ -67,6 +64,9 @@
         <div class="sidebar-section">Administrasi</div>
         <a href="{{ route('log-login.index') }}" class="sidebar-link {{ request()->routeIs('log-login.*') ? 'active' : '' }}">
             <x-icon name="key"/> Log Login
+        </a>
+        <a href="{{ route('pengaturan.index') }}" class="sidebar-link {{ request()->routeIs('pengaturan.*') ? 'active' : '' }}">
+            <x-icon name="settings"/> Pengaturan Aplikasi
         </a>
     </nav>
 </aside>

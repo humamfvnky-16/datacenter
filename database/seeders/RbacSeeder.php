@@ -44,6 +44,7 @@ class RbacSeeder extends Seeder
             ['guru-mapel/*', 'Kelola Guru Mapel', 'datacenter'],
             ['siswa/*', 'Kelola Siswa', 'datacenter'],
             ['periodikal/*', 'Administrasi Periodikal (Kenaikan Kelas & Kelulusan)', 'datacenter'],
+            ['pengaturan/*', 'Kelola Pengaturan (Halaman Login, dsb)', 'datacenter'],
         ];
 
         $allPermIds = [];
@@ -51,9 +52,10 @@ class RbacSeeder extends Seeder
         foreach ($permList as [$perm, $label, $group]) {
             $p = Permission::firstOrCreate(['permission' => $perm], ['label' => $label, 'group' => $group]);
             $allPermIds[] = $p->id;
-            // operator: hanya datacenter (tanpa guru/sekolah/periodikal -- periodikal
-            // adalah operasi bulk yang mengubah data kelas/status ratusan siswa sekaligus)
-            if (in_array($group, ['umum', 'datacenter']) && !in_array($perm, ['sekolah/*', 'guru/*', 'periodikal/*'])) {
+            // operator: hanya datacenter (tanpa guru/sekolah/periodikal/pengaturan --
+            // periodikal adalah operasi bulk yang mengubah data kelas/status ratusan
+            // siswa sekaligus; pengaturan adalah wewenang admin, bukan operator data)
+            if (in_array($group, ['umum', 'datacenter']) && !in_array($perm, ['sekolah/*', 'guru/*', 'periodikal/*', 'pengaturan/*'])) {
                 $operatorPermIds[] = $p->id;
             }
         }

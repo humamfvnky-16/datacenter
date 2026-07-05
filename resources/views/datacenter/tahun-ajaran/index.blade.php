@@ -11,13 +11,12 @@
 
 <div class="card">
     <table class="table-modern">
-        <thead><tr><th>Kode</th><th>Tahun Ajaran</th><th>Semester</th><th>Periode</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Kode</th><th>Tahun Ajaran</th><th>Periode</th><th>Status</th><th></th></tr></thead>
         <tbody>
         @forelse($items as $it)
             <tr>
                 <td class="font-semibold">{{ $it->kode_tahun_ajaran }}</td>
                 <td>{{ $it->nama_tahun_ajaran }}</td>
-                <td>{{ $it->semester }}</td>
                 <td class="text-xs text-ink-500">{{ optional($it->tanggal_mulai)->format('d M Y') }} — {{ optional($it->tanggal_selesai)->format('d M Y') }}</td>
                 <td>@if($it->is_aktif)<span class="badge-success">Aktif</span>@else<span class="badge-muted">Non-aktif</span>@endif</td>
                 <td class="text-right">
@@ -29,7 +28,7 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="6" class="text-center py-8 text-ink-500">Belum ada data.</td></tr>
+            <tr><td colspan="5" class="text-center py-8 text-ink-500">Belum ada data.</td></tr>
         @endforelse
         </tbody>
     </table>

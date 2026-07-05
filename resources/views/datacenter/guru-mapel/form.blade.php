@@ -19,7 +19,7 @@
 
     <div class="grid md:grid-cols-2 gap-4">
         <x-field type="select" name="tahun_ajaran_id" label="Tahun Ajaran" :value="$item->tahun_ajaran_id" required
-                 :options="$taList->mapWithKeys(fn($t) => [$t->id => $t->nama_tahun_ajaran.' ('.$t->semester.')'])->toArray()"/>
+                 :options="$taList->mapWithKeys(fn($t) => [$t->id => $t->nama_tahun_ajaran])->toArray()"/>
 
         <div>
             <label class="label">Tingkat Kelas <span class="text-xs text-ink-500">(filter rombel)</span></label>

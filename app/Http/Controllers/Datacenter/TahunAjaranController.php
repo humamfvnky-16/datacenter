@@ -52,7 +52,6 @@ class TahunAjaranController extends Controller
         return $r->validate([
             'kode_tahun_ajaran' => 'required|string|max:10|unique:tahun_ajaran,kode_tahun_ajaran,'.$id,
             'nama_tahun_ajaran' => 'required|string|max:30',
-            'semester' => 'required|in:Ganjil,Genap',
             'tanggal_mulai' => 'nullable|date',
             'tanggal_selesai' => 'nullable|date',
             'is_aktif' => 'nullable|boolean',

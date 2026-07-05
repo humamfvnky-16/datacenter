@@ -30,7 +30,7 @@
         <select name="ta_tujuan" class="select">
             <option value="">— Pilih —</option>
             @foreach($tahunAjaran as $ta)
-                <option value="{{ $ta->id }}" @selected($tujuanId == $ta->id)>{{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }})</option>
+                <option value="{{ $ta->id }}" @selected($tujuanId == $ta->id)>{{ $ta->nama_tahun_ajaran }}</option>
             @endforeach
         </select>
     </div>

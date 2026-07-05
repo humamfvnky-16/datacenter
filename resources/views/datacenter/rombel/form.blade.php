@@ -12,7 +12,7 @@
         <x-field type="select" name="jurusan_id" label="Jurusan" :value="$item->jurusan_id"
                  :options="$jurusan->pluck('nama_jurusan', 'id')->toArray()"/>
         <x-field type="select" name="tahun_ajaran_id" label="Tahun Ajaran" :value="$item->tahun_ajaran_id" required
-                 :options="$tahunAjaran->mapWithKeys(fn($t) => [$t->id => $t->nama_tahun_ajaran.' ('.$t->semester.')'])->toArray()"/>
+                 :options="$tahunAjaran->mapWithKeys(fn($t) => [$t->id => $t->nama_tahun_ajaran])->toArray()"/>
         <x-field type="select" name="wali_kelas_id" label="Wali Kelas" :value="$item->wali_kelas_id"
                  :options="$guru->pluck('nama_ptk', 'id')->toArray()"/>
         <x-field name="kapasitas" type="number" label="Kapasitas" :value="$item->kapasitas ?? 36"/>

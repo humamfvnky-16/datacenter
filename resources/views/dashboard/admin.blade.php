@@ -35,7 +35,7 @@
 
     @if($tahunAjaranAktif)
         <div class="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800">
-            Tahun ajaran aktif: <strong>{{ $tahunAjaranAktif->nama_tahun_ajaran }} &middot; {{ $tahunAjaranAktif->semester }}</strong>
+            Tahun ajaran aktif: <strong>{{ $tahunAjaranAktif->nama_tahun_ajaran }}</strong>
         </div>
     @endif
 

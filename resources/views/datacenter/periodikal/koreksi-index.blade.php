@@ -10,13 +10,13 @@
     <select name="ta_asal" class="select w-48">
         <option value="">Semua TA Asal</option>
         @foreach($tahunAjaran as $ta)
-            <option value="{{ $ta->id }}" @selected(request('ta_asal')==$ta->id)>{{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }})</option>
+            <option value="{{ $ta->id }}" @selected(request('ta_asal')==$ta->id)>{{ $ta->nama_tahun_ajaran }}</option>
         @endforeach
     </select>
     <select name="ta_tujuan" class="select w-48">
         <option value="">Semua TA Tujuan</option>
         @foreach($tahunAjaran as $ta)
-            <option value="{{ $ta->id }}" @selected(request('ta_tujuan')==$ta->id)>{{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }})</option>
+            <option value="{{ $ta->id }}" @selected(request('ta_tujuan')==$ta->id)>{{ $ta->nama_tahun_ajaran }}</option>
         @endforeach
     </select>
     <button class="btn-secondary"><x-icon name="search" class="w-4 h-4"/></button>
