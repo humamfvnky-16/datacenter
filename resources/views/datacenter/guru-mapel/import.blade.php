@@ -41,14 +41,16 @@
     <div class="card card-pad space-y-3 text-sm">
         <h3 class="font-semibold text-ink-900">Format Kolom</h3>
         <code class="block text-[10px] bg-slate-50 p-2 rounded border border-slate-200 break-all">
-            nip | kode_mapel | nama_rombel | tahun_ajaran
+            NIP | Nama Lengkap | Tingkat | Rombel | Kode Mata Pelajaran | Mata Pelajaran
         </code>
         <ul class="text-xs text-ink-600 list-disc pl-5 space-y-1">
-            <li><code>nip</code>: NIP guru — wajib & harus sudah ada di data guru.</li>
-            <li><code>kode_mapel</code>: kode mata pelajaran — wajib & harus sudah ada di data mapel.</li>
-            <li><code>nama_rombel</code>: nama rombel persis seperti tercatat (mis. <code>X IPA 1</code>) — wajib.</li>
-            <li><code>tahun_ajaran</code>: nama TA persis (mis. <code>2024/2025 - Ganjil</code>). Jika <strong>kosong</strong> → otomatis pakai TA aktif.</li>
-            <li>1 guru bisa muncul di banyak baris (untuk banyak rombel/mapel).</li>
+            <li><code>NIP</code>: NIP guru — wajib & harus sudah ada di data guru.</li>
+            <li><code>Nama Lengkap</code> & <code>Tingkat</code>: informasi tambahan saja, tidak divalidasi.</li>
+            <li>Baris lanjutan boleh mengosongkan <code>NIP</code>/<code>Nama Lengkap</code>/<code>Tingkat</code> (sel "digabung") — otomatis mewarisi dari baris terakhir yang terisi, persis seperti rekap Dapodik.</li>
+            <li><code>Rombel</code>: nama rombel persis seperti tercatat, boleh lebih dari satu dipisah koma (mis. <code>7-1,7-2,7-3,7-4</code>) — wajib.</li>
+            <li><code>Kode Mata Pelajaran</code>: kode mapel. Jika <strong>kosong</strong>, dicocokkan otomatis lewat nama pada kolom <code>Mata Pelajaran</code>.</li>
+            <li><code>Mata Pelajaran</code>: nama mapel — wajib diisi jika kode kosong.</li>
+            <li>Tahun ajaran otomatis memakai Tahun Ajaran aktif.</li>
             <li>Baris yang kombinasinya sudah ada → di-skip (tidak duplikat).</li>
         </ul>
     </div>

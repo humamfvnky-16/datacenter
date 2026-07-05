@@ -19,21 +19,34 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Import / Export assignment Guru ↔ Mapel ↔ Rombel (Excel).
  *
- * Kolom (baris 1):
- *   nip | kode_mapel | nama_rombel | tahun_ajaran
+ * Kolom (baris 1), sesuai rekap "Guru Mengajar" (mis. hasil export Dapodik):
+ *   NIP | Nama Lengkap | Tingkat | Rombel | Kode Mata Pelajaran | Mata Pelajaran
  *
- * - nip          : NIP guru (harus sudah terdaftar)
- * - kode_mapel   : kode mapel (harus sudah terdaftar)
- * - nama_rombel  : nama rombel persis (pada TA yg ditulis di kolom tahun_ajaran,
- *                  jika kosong → pakai TA aktif)
- * - tahun_ajaran : nama TA (opsional). Jika kosong → TA aktif.
+ * - NIP                  : NIP guru (harus sudah terdaftar). Boleh kosong pada baris
+ *                          lanjutan (sel "digabung") → diwarisi dari baris terakhir yang terisi.
+ * - Nama Lengkap/Tingkat : opsional, hanya informasi tambahan (ikut carry-forward, tidak divalidasi).
+ * - Rombel               : nama rombel, boleh berisi lebih dari satu dipisah koma
+ *                          (mis. "7-1,7-2,7-3,7-4") → tiap rombel jadi 1 assignment.
+ * - Kode Mata Pelajaran  : kode mapel. Jika kosong → dicocokkan lewat kolom Mata Pelajaran (nama).
+ * - Mata Pelajaran       : nama mapel, dipakai sebagai fallback pencocokan saat kode kosong.
  *
- * Logika: firstOrCreate berdasarkan kombinasi 4 kolom.
+ * Tahun ajaran selalu memakai Tahun Ajaran aktif.
+ * Logika: firstOrCreate berdasarkan kombinasi guru+mapel+rombel+TA aktif.
  */
 class GuruMapelExcelService
 {
     public const HEADERS = [
-        'nip', 'kode_mapel', 'nama_rombel', 'tahun_ajaran',
+        'NIP', 'Nama Lengkap', 'Tingkat', 'Rombel', 'Kode Mata Pelajaran', 'Mata Pelajaran',
+    ];
+
+    /** Peta label header (dinormalisasi lower-case, spasi dirapikan) → key internal. */
+    protected const HEADER_MAP = [
+        'nip'                  => 'nip',
+        'nama lengkap'         => 'nama_lengkap',
+        'tingkat'              => 'tingkat',
+        'rombel'               => 'rombel',
+        'kode mata pelajaran'  => 'kode_mapel',
+        'mata pelajaran'       => 'nama_mapel',
     ];
 
     public function import(UploadedFile $file): ImportResult
@@ -45,13 +58,27 @@ class GuruMapelExcelService
 
         if (count($data) < 2) return $result;
 
-        $headers = array_map(fn ($v) => trim(strtolower((string) $v)), array_shift($data));
+        $rawHeaders = array_shift($data);
+        $headers = array_map(function ($v) {
+            $norm = preg_replace('/\s+/', ' ', trim(strtolower((string) $v)));
+            return self::HEADER_MAP[$norm] ?? $norm;
+        }, $rawHeaders);
+
         $taAktif = TahunAjaran::aktif();
+        if (! $taAktif) {
+            $result->errors[] = 'Tidak ada Tahun Ajaran aktif.';
+            return $result;
+        }
 
         // Cache lookup biar cepat
         $guruCache  = Guru::pluck('id', 'nip');
-        $mapelCache = MataPelajaran::pluck('id', 'kode_mapel');
-        $taCache    = TahunAjaran::pluck('id', 'nama_tahun_ajaran');
+        $mapelByKode = MataPelajaran::pluck('id', 'kode_mapel');
+        $mapelByNama = MataPelajaran::get()->keyBy(fn ($m) => strtolower(trim($m->nama_mapel)))->map(fn ($m) => $m->id);
+        $rombelCache = RombonganBelajar::where('tahun_ajaran_id', $taAktif->id)
+            ->get()->keyBy(fn ($r) => strtolower(trim($r->nama_rombel)));
+
+        // State carry-forward untuk sel yang "digabung" (kosong = lanjutan baris di atasnya)
+        $lastNip = null;
 
         foreach ($data as $i => $row) {
             $line = $i + 2;
@@ -61,44 +88,64 @@ class GuruMapelExcelService
                     $assoc[$h] = $row[$idx] ?? null;
                 }
 
-                $nip        = trim((string) ($assoc['nip'] ?? ''));
-                $kodeMapel  = trim((string) ($assoc['kode_mapel'] ?? ''));
-                $namaRombel = trim((string) ($assoc['nama_rombel'] ?? ''));
-                $namaTa     = trim((string) ($assoc['tahun_ajaran'] ?? ''));
-
-                if ($nip === '' || $kodeMapel === '' || $namaRombel === '') {
-                    throw new \RuntimeException('nip, kode_mapel, & nama_rombel wajib diisi');
-                }
-
-                $guruId  = $guruCache[$nip]  ?? null;
-                $mapelId = $mapelCache[$kodeMapel] ?? null;
-
-                if (! $guruId)  throw new \RuntimeException("Guru NIP '{$nip}' tidak ditemukan");
-                if (! $mapelId) throw new \RuntimeException("Mapel kode '{$kodeMapel}' tidak ditemukan");
-
-                $taId = null;
-                if ($namaTa !== '') {
-                    $taId = $taCache[$namaTa] ?? null;
-                    if (! $taId) throw new \RuntimeException("Tahun ajaran '{$namaTa}' tidak ditemukan");
+                $nip = trim((string) ($assoc['nip'] ?? ''));
+                if ($nip === '') {
+                    $nip = $lastNip ?? '';
                 } else {
-                    if (! $taAktif) throw new \RuntimeException('Tidak ada Tahun Ajaran aktif');
-                    $taId = $taAktif->id;
+                    $lastNip = $nip;
                 }
 
-                $rombel = RombonganBelajar::where('nama_rombel', $namaRombel)
-                    ->where('tahun_ajaran_id', $taId)->first();
-                if (! $rombel) {
-                    throw new \RuntimeException("Rombel '{$namaRombel}' tidak ada di TA terkait");
+                $rombelRaw  = trim((string) ($assoc['rombel'] ?? ''));
+                $kodeMapel  = trim((string) ($assoc['kode_mapel'] ?? ''));
+                $namaMapel  = trim((string) ($assoc['nama_mapel'] ?? ''));
+
+                if ($nip === '') {
+                    throw new \RuntimeException('NIP tidak ditemukan (baris pertama tidak boleh kosong)');
+                }
+                if ($rombelRaw === '') {
+                    throw new \RuntimeException('Rombel wajib diisi');
+                }
+                if ($kodeMapel === '' && $namaMapel === '') {
+                    throw new \RuntimeException('Kode Mata Pelajaran & Mata Pelajaran tidak boleh kosong dua-duanya');
                 }
 
-                GuruMapel::firstOrCreate([
-                    'guru_id'              => $guruId,
-                    'mata_pelajaran_id'    => $mapelId,
-                    'rombongan_belajar_id' => $rombel->id,
-                    'tahun_ajaran_id'      => $taId,
-                ]);
+                $guruId = $guruCache[$nip] ?? null;
+                if (! $guruId) throw new \RuntimeException("Guru NIP '{$nip}' tidak ditemukan");
 
-                $result->success++;
+                $mapelId = $kodeMapel !== ''
+                    ? ($mapelByKode[$kodeMapel] ?? null)
+                    : ($mapelByNama[strtolower($namaMapel)] ?? null);
+
+                if (! $mapelId) {
+                    $label = $kodeMapel !== '' ? "kode '{$kodeMapel}'" : "nama '{$namaMapel}'";
+                    throw new \RuntimeException("Mapel dengan {$label} tidak ditemukan");
+                }
+
+                $rombelNames = array_filter(array_map('trim', explode(',', $rombelRaw)));
+
+                $createdInLine = 0;
+                $lineErrors = [];
+                foreach ($rombelNames as $namaRombel) {
+                    $rombel = $rombelCache[strtolower($namaRombel)] ?? null;
+                    if (! $rombel) {
+                        $lineErrors[] = "Rombel '{$namaRombel}' tidak ada di TA aktif";
+                        continue;
+                    }
+
+                    GuruMapel::firstOrCreate([
+                        'guru_id'              => $guruId,
+                        'mata_pelajaran_id'    => $mapelId,
+                        'rombongan_belajar_id' => $rombel->id,
+                        'tahun_ajaran_id'      => $taAktif->id,
+                    ]);
+                    $createdInLine++;
+                }
+
+                $result->success += $createdInLine;
+                if ($lineErrors) {
+                    $result->failed++;
+                    $result->errors[] = "Baris {$line}: " . implode('; ', $lineErrors);
+                }
             } catch (\Throwable $e) {
                 $result->failed++;
                 $result->errors[] = "Baris {$line}: " . $e->getMessage();
@@ -111,23 +158,40 @@ class GuruMapelExcelService
     public function export(?\Illuminate\Database\Eloquent\Collection $items = null): StreamedResponse
     {
         $items ??= GuruMapel::with('guru', 'mapel', 'rombel', 'tahunAjaran')
-                    ->orderBy('guru_id')->get();
+                    ->orderBy('guru_id')->orderBy('mata_pelajaran_id')->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Guru Mapel');
 
-        // Header gabungan: read-friendly + raw-key. Header impor di baris 1 = key.
         $sheet->fromArray([self::HEADERS], null, 'A1');
         $this->styleHeader($sheet, count(self::HEADERS));
         $this->forceTextColumns($sheet, count(self::HEADERS));
 
-        $rows = $items->map(fn ($gm) => [
-            optional($gm->guru)->nip,
-            optional($gm->mapel)->kode_mapel,
-            optional($gm->rombel)->nama_rombel,
-            optional($gm->tahunAjaran)->nama_tahun_ajaran,
-        ])->toArray();
+        // Kelompokkan per guru + mapel + tingkat rombel, rombel-nya digabung koma
+        // (meniru format rekap: sel NIP/Nama Lengkap hanya tampil di baris pertama guru terkait).
+        $grouped = $items
+            ->filter(fn ($gm) => $gm->guru && $gm->mapel && $gm->rombel)
+            ->groupBy(fn ($gm) => $gm->guru_id . '|' . $gm->mata_pelajaran_id . '|' . $gm->rombel->tingkat);
+
+        $rows = [];
+        $lastGuruId = null;
+        foreach ($grouped as $group) {
+            $first = $group->first();
+            $guru  = $first->guru;
+            $mapel = $first->mapel;
+            $sameGuru = $lastGuruId === $guru->id;
+
+            $rows[] = [
+                $sameGuru ? '' : $guru->nip,
+                $sameGuru ? '' : $guru->nama_ptk,
+                $first->rombel->tingkat,
+                $group->pluck('rombel.nama_rombel')->unique()->implode(','),
+                $mapel->kode_mapel,
+                $mapel->nama_mapel,
+            ];
+            $lastGuruId = $guru->id;
+        }
 
         $this->writeRowsAsText($sheet, $rows, 2);
 
@@ -149,9 +213,9 @@ class GuruMapelExcelService
         $this->forceTextColumns($sheet, count(self::HEADERS));
 
         $this->writeRowsAsText($sheet, [
-            ['198001012000031000', 'MTK', '7-1',     '2024/2025 - Ganjil'],
-            ['198001012000031000', 'MTK', 'X IPA 2', '2024/2025 - Ganjil'],
-            ['198502102001012001', 'BIN', 'XI IPS 1', ''],
+            ['197112161997022002', 'TIARLY SILABAN, S.Pd., M.', '7', '7-1,7-2,7-3,7-4', '',    'IPA'],
+            ['',                   '',                           '9', '9-1,9-2,9-3',     '',    'IPA'],
+            ['198609031980021002', 'RIKARDO HUTAPEA, S.Pd.',     '7', '7-1,7-2',         'MTK', 'MATEMATIKA'],
         ], 2);
 
         foreach (range('A', chr(64 + count(self::HEADERS))) as $col) {
