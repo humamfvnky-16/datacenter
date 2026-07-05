@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\RombelController;
 use App\Http\Controllers\Api\SekolahController;
 use App\Http\Controllers\Api\SiswaController;
 use App\Http\Controllers\Api\TahunAjaranController;
+use App\Http\Controllers\Api\TingkatKelasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', fn () => ['ok' => true, 'time' => now()->toIso8601String()]);
@@ -36,6 +37,7 @@ Route::prefix('v1')->group(function () {
     // ---- Read-only (list & detail) ----
     Route::middleware(['auth:sanctum', 'abilities:datacenter.read'])->group(function () {
         Route::get('tahun-ajaran', [TahunAjaranController::class, 'index']);
+        Route::get('tingkat-kelas', [TingkatKelasController::class, 'index']);
 
         Route::get('rombel', [RombelController::class, 'index']);
         Route::get('rombel/{rombel}', [RombelController::class, 'show']);

@@ -15,6 +15,7 @@ class GuruController extends Controller
     public function index(Request $r)
     {
         $items = Guru::query()
+            ->with('guruMapel.mapel', 'guruMapel.rombel')   // penugasan mengajar (dipakai bulk sync CBT)
             ->when($r->q, function ($q) use ($r) {
                 $q->where(function ($x) use ($r) {
                     $x->where('nama_ptk', 'like', "%{$r->q}%")
