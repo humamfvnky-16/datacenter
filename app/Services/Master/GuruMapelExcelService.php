@@ -213,9 +213,9 @@ class GuruMapelExcelService
         $this->forceTextColumns($sheet, count(self::HEADERS));
 
         $this->writeRowsAsText($sheet, [
-            ['197112161997022002', 'TIARLY SILABAN, S.Pd., M.', '7', '7-1,7-2,7-3,7-4', '',    'IPA'],
+            ['193924832948203482', 'BAMBANG SUSILO, S.Pd., M.', '7', '7-1,7-2,7-3,7-4', '',    'IPA'],
             ['',                   '',                           '9', '9-1,9-2,9-3',     '',    'IPA'],
-            ['198609031980021002', 'RIKARDO HUTAPEA, S.Pd.',     '7', '7-1,7-2',         'MTK', 'MATEMATIKA'],
+            ['198546456456564566', 'TEGUH SATRIO, S.Pd.',     '7', '7-1,7-2',         'MTK', 'MATEMATIKA'],
         ], 2);
 
         foreach (range('A', chr(64 + count(self::HEADERS))) as $col) {
