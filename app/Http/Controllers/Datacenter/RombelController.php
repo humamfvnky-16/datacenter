@@ -8,6 +8,7 @@ use App\Models\Jurusan;
 use App\Models\RombonganBelajar;
 use App\Models\TahunAjaran;
 use App\Models\TingkatKelas;
+use App\Services\Master\RombelExcelService;
 use Illuminate\Http\Request;
 
 class RombelController extends Controller
@@ -75,5 +76,36 @@ class RombelController extends Controller
             'wali_kelas_id' => 'nullable|exists:guru,id',
             'kapasitas' => 'nullable|integer|min:1',
         ]);
+    }
+
+    /* ===================== IMPORT / EXPORT ===================== */
+
+    public function importForm()
+    {
+        return view('datacenter.rombel.import');
+    }
+
+    public function importStore(Request $r, RombelExcelService $svc)
+    {
+        $r->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:5120']);
+        $result = $svc->import($r->file('file'));
+
+        return redirect()->route('rombel.import.form')
+            ->with('success', "Import selesai: {$result->success} sukses, {$result->failed} gagal.")
+            ->with('importErrors', $result->errors);
+    }
+
+    public function importTemplate(RombelExcelService $svc)
+    {
+        return $svc->template();
+    }
+
+    public function exportExcel(Request $r, RombelExcelService $svc)
+    {
+        $query = RombonganBelajar::with('jurusan', 'tahunAjaran', 'waliKelas')
+            ->when($r->q, fn ($x) => $x->where('nama_rombel', 'like', "%{$r->q}%"))
+            ->when($r->ta, fn ($x) => $x->where('tahun_ajaran_id', $r->ta));
+
+        return $svc->export($query->orderBy('tingkat')->orderBy('nama_rombel')->get());
     }
 }

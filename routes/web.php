@@ -69,6 +69,10 @@ Route::middleware([
         Route::resource('jurusan', JurusanController::class)->except('show');
         Route::resource('mapel', MataPelajaranController::class)->except('show')
             ->parameters(['mapel' => 'mapel']);
+        Route::get('/rombel/import',          [RombelController::class, 'importForm'])->name('rombel.import.form');
+        Route::post('/rombel/import',         [RombelController::class, 'importStore'])->name('rombel.import.store');
+        Route::get('/rombel/import-template', [RombelController::class, 'importTemplate'])->name('rombel.import.template');
+        Route::get('/rombel/export/excel',    [RombelController::class, 'exportExcel'])->name('rombel.export.excel');
         Route::resource('rombel', RombelController::class)->except('show')
             ->parameters(['rombel' => 'rombel']);
 

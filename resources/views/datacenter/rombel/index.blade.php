@@ -5,6 +5,12 @@
 @section('content')
 <x-page-header title="Rombongan Belajar" subtitle="Kelas / rombongan per tahun ajaran">
     <x-slot:action>
+        <a href="{{ route('rombel.import.form') }}" class="btn-secondary">
+            <x-icon name="document" class="w-4 h-4"/> Import
+        </a>
+        <a href="{{ route('rombel.export.excel', request()->query()) }}" class="btn-secondary">
+            <x-icon name="chart" class="w-4 h-4"/> Export Excel
+        </a>
         <a href="{{ route('rombel.create') }}" class="btn-primary"><x-icon name="plus" class="w-4 h-4"/> Tambah</a>
     </x-slot:action>
 </x-page-header>
