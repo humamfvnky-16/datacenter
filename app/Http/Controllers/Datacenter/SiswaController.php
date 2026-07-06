@@ -92,6 +92,13 @@ class SiswaController extends Controller
     public function importStore(Request $r, SiswaExcelService $svc)
     {
         $r->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:10240']);
+
+        // File dengan ratusan+ baris (hash password per siswa baru) bisa melebihi
+        // max_execution_time default (30 detik) dan berhenti mendadak (500) di
+        // tengah loop meski sebagian baris sudah ter-commit. Hilangkan batas waktu
+        // khusus untuk request import ini saja.
+        set_time_limit(0);
+
         $result = $svc->import($r->file('file'));
 
         return redirect()->route('siswa.import.form')

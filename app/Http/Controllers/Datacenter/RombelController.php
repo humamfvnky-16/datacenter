@@ -88,6 +88,11 @@ class RombelController extends Controller
     public function importStore(Request $r, RombelExcelService $svc)
     {
         $r->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:5120']);
+
+        // File dengan banyak baris bisa melebihi max_execution_time default
+        // dan berhenti mendadak (500) di tengah loop.
+        set_time_limit(0);
+
         $result = $svc->import($r->file('file'));
 
         return redirect()->route('rombel.import.form')
