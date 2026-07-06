@@ -41,10 +41,17 @@ class SiswaExcelService
 
     public function import(UploadedFile $file): ImportResult
     {
-        $spreadsheet = IOFactory::load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $data  = $sheet->toArray(null, true, true, false);
         $result = new ImportResult();
+
+        try {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data  = $sheet->toArray(null, true, true, false);
+        } catch (\Throwable $e) {
+            $result->failed++;
+            $result->errors[] = 'Gagal membaca file Excel: '.$e->getMessage();
+            return $result;
+        }
 
         if (count($data) < 2) return $result;
 

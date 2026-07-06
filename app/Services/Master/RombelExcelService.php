@@ -207,12 +207,3 @@ class RombelExcelService
         ]);
     }
 }
-
-if (! class_exists(ImportResult::class, false)) {
-    class ImportResult
-    {
-        public int $success = 0;
-        public int $failed = 0;
-        public array $errors = [];
-    }
-}
