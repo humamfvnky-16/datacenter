@@ -83,7 +83,7 @@
 
             @if($app['login_bg'])
                 <div class="rounded-xl overflow-hidden border border-slate-200 relative h-48 bg-slate-100">
-                    <img src="{{ Storage::url($app['login_bg']) }}" alt="" class="w-full h-full object-cover">
+                    <img src="{{ Storage::disk('public')->url($app['login_bg']) }}" alt="" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent"></div>
                     <div class="absolute bottom-3 left-3 text-white text-xs font-semibold drop-shadow">Preview</div>
                 </div>

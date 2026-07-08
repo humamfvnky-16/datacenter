@@ -17,7 +17,7 @@
         .login-hero {
             @if($AppCfg['login_bg'])
                 background-image: linear-gradient(135deg, rgb(0 23 24 / 40%), rgb(15 23 42 / 80%)),
-                                  url('{{ Storage::url($AppCfg['login_bg']) }}');
+                                  url('{{ Storage::disk('public')->url($AppCfg['login_bg']) }}');
                 background-size: cover;
                 background-position: center;
             @else
