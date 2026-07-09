@@ -71,6 +71,20 @@ class SiswaController extends Controller
         return back()->with('success', 'Data siswa dihapus.');
     }
 
+    /** Hapus banyak siswa sekaligus (dipilih lewat checkbox di daftar). */
+    public function bulkDestroy(Request $r)
+    {
+        $data = $r->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:siswa,id',
+        ]);
+
+        $count = Siswa::whereIn('id', $data['ids'])->count();
+        Siswa::whereIn('id', $data['ids'])->delete();
+
+        return back()->with('success', "{$count} data siswa dihapus.");
+    }
+
     /**
      * Buka kunci akun siswa yang sedang terkunci (5x salah login berturut-turut).
      * Reset failed_login_count & locked_until supaya siswa bisa login lagi

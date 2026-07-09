@@ -44,6 +44,20 @@ class GuruController extends Controller
         return back()->with('success', 'Data guru dihapus.');
     }
 
+    /** Hapus banyak guru sekaligus (dipilih lewat checkbox di daftar). */
+    public function bulkDestroy(Request $r)
+    {
+        $data = $r->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:guru,id',
+        ]);
+
+        $count = Guru::whereIn('id', $data['ids'])->count();
+        Guru::whereIn('id', $data['ids'])->delete();
+
+        return back()->with('success', "{$count} data guru dihapus.");
+    }
+
     /**
      * Buka kunci akun guru yang sedang terkunci (5x salah login berturut-turut).
      * Reset failed_login_count & locked_until supaya guru bisa login lagi

@@ -83,6 +83,7 @@ Route::middleware([
         Route::post('/guru/import',         [GuruController::class, 'importStore'])->name('guru.import.store');
         Route::get('/guru/import-template', [GuruController::class, 'importTemplate'])->name('guru.import.template');
         Route::get('/guru/export/excel',    [GuruController::class, 'exportExcel'])->name('guru.export.excel');
+        Route::delete('/guru/bulk-destroy', [GuruController::class, 'bulkDestroy'])->name('guru.bulk-destroy');
         Route::resource('guru', GuruController::class)->except('show');
         Route::post('/guru/{guru}/unlock', [GuruController::class, 'unlock'])->name('guru.unlock');
 
@@ -97,6 +98,7 @@ Route::middleware([
         Route::post('/siswa/import',         [SiswaController::class, 'importStore'])->name('siswa.import.store');
         Route::get('/siswa/import-template', [SiswaController::class, 'importTemplate'])->name('siswa.import.template');
         Route::get('/siswa/export/excel',    [SiswaController::class, 'exportExcel'])->name('siswa.export.excel');
+        Route::delete('/siswa/bulk-destroy', [SiswaController::class, 'bulkDestroy'])->name('siswa.bulk-destroy');
         Route::resource('siswa', SiswaController::class)->except('show');
         Route::post('/siswa/{siswa}/unlock', [SiswaController::class, 'unlock'])->name('siswa.unlock');
 
