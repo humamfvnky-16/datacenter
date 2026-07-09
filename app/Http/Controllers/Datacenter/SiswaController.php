@@ -34,12 +34,19 @@ class SiswaController extends Controller
                   ->orWhere('siswa.nisn', 'like', "%{$r->q}%")
                   ->orWhere('siswa.nis', 'like', "%{$r->q}%");
             })
+            ->when($r->rombel, fn ($x) => $x->where('rombongan_belajar.id', $r->rombel))
             ->orderByRaw('rombongan_belajar.tingkat is null')
             ->orderBy('rombongan_belajar.tingkat')
             ->orderBy('rombongan_belajar.nama_rombel')
             ->orderBy('siswa.nama_siswa')
             ->paginate(25)->withQueryString();
-        return view('datacenter.siswa.index', compact('items'));
+
+        // Daftar kelas utk dropdown filter — hanya rombel tahun ajaran aktif,
+        // sesuai kelas yang benar-benar dipakai utk mengurutkan/menyaring di atas.
+        $rombelList = RombonganBelajar::whereHas('tahunAjaran', fn ($q) => $q->where('is_aktif', true))
+            ->orderBy('tingkat')->orderBy('nama_rombel')->get();
+
+        return view('datacenter.siswa.index', compact('items', 'rombelList'));
     }
 
     public function create()

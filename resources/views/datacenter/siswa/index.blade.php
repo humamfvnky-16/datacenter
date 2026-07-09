@@ -15,8 +15,14 @@
     </x-slot:action>
 </x-page-header>
 
-<form class="card card-pad mb-4 max-w-md flex gap-2">
-    <input name="q" value="{{ request('q') }}" class="input" placeholder="Cari nama, NISN, atau NIS...">
+<form class="card card-pad mb-4 flex flex-wrap gap-2">
+    <input name="q" value="{{ request('q') }}" class="input flex-1 min-w-[220px]" placeholder="Cari nama, NISN, atau NIS...">
+    <select name="rombel" class="select w-full sm:w-52" onchange="this.form.submit()">
+        <option value="">Semua Kelas</option>
+        @foreach($rombelList as $rb)
+            <option value="{{ $rb->id }}" @selected(request('rombel') == $rb->id)>{{ $rb->nama_rombel }}</option>
+        @endforeach
+    </select>
     <button class="btn-secondary"><x-icon name="search" class="w-4 h-4"/></button>
 </form>
 
