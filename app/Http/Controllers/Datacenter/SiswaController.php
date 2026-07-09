@@ -15,13 +15,29 @@ class SiswaController extends Controller
 {
     public function index(Request $r)
     {
-        $items = Siswa::with(['rombelSekarang.rombel'])
-            ->when($r->q, function ($x) use ($r) {
-                $x->where('nama_siswa', 'like', "%{$r->q}%")
-                  ->orWhere('nisn', 'like', "%{$r->q}%")
-                  ->orWhere('nis', 'like', "%{$r->q}%");
+        // Urutkan berdasarkan kelas (rombel) tahun ajaran aktif terlebih dahulu —
+        // tingkat terkecil dulu (7 sebelum 8), lalu nama rombel (7-1 sebelum 7-2),
+        // siswa tanpa rombel di tahun ajaran aktif ditaruh paling akhir — baru
+        // nama siswa alfabetis di dalam kelas yang sama.
+        $items = Siswa::query()
+            ->select('siswa.*')
+            ->leftJoin('siswa_rombel', function ($join) {
+                $join->on('siswa_rombel.siswa_id', '=', 'siswa.id')
+                     ->whereIn('siswa_rombel.tahun_ajaran_id', function ($q) {
+                         $q->select('id')->from('tahun_ajaran')->where('is_aktif', true);
+                     });
             })
-            ->orderBy('nama_siswa')
+            ->leftJoin('rombongan_belajar', 'rombongan_belajar.id', '=', 'siswa_rombel.rombongan_belajar_id')
+            ->with(['rombelSekarang.rombel'])
+            ->when($r->q, function ($x) use ($r) {
+                $x->where('siswa.nama_siswa', 'like', "%{$r->q}%")
+                  ->orWhere('siswa.nisn', 'like', "%{$r->q}%")
+                  ->orWhere('siswa.nis', 'like', "%{$r->q}%");
+            })
+            ->orderByRaw('rombongan_belajar.tingkat is null')
+            ->orderBy('rombongan_belajar.tingkat')
+            ->orderBy('rombongan_belajar.nama_rombel')
+            ->orderBy('siswa.nama_siswa')
             ->paginate(25)->withQueryString();
         return view('datacenter.siswa.index', compact('items'));
     }
