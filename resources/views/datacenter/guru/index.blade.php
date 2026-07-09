@@ -28,7 +28,7 @@
             <tr>
                 <td class="font-mono text-xs">{{ $g->nip }}</td>
                 <td class="flex items-center gap-2 font-semibold text-ink-900">
-                    <img src="{{ $g->profile_photo_url }}" class="w-8 h-8 rounded-full object-cover">
+                    <x-avatar :src="$g->profile_photo_url" :name="$g->nama_ptk" size="w-8 h-8"/>
                     <div>
                         {{ $g->nama_ptk }}
                         <div class="text-xs text-ink-500 font-normal">{{ $g->email ?: '—' }}</div>

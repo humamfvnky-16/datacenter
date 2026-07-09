@@ -28,7 +28,7 @@
             <tr>
                 <td class="font-mono text-xs">{{ $s->nisn }}</td>
                 <td class="flex items-center gap-2 font-semibold text-ink-900">
-                    <img src="{{ $s->profile_photo_url }}" class="w-8 h-8 rounded-full object-cover">
+                    <x-avatar :src="$s->profile_photo_url" :name="$s->nama_siswa" size="w-8 h-8"/>
                     <div>
                         {{ $s->nama_siswa }}
                         <div class="text-xs text-ink-500 font-normal">NIS: {{ $s->nis ?: '—' }}</div>
