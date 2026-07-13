@@ -55,7 +55,7 @@
             <div class="flex flex-wrap items-center gap-4">
                 <div class="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
                     @if($sekolah->logo)
-                        <img src="{{ Storage::disk('public')->url($sekolah->logo) }}" alt="Logo" class="max-w-full max-h-full object-contain">
+                        <img src="{{ $sekolah->logo_url }}" alt="Logo" class="max-w-full max-h-full object-contain">
                     @else
                         <span class="text-xs text-slate-400 text-center">Belum ada<br>logo</span>
                     @endif
@@ -83,7 +83,7 @@
 
             @if($app['login_bg'])
                 <div class="rounded-xl overflow-hidden border border-slate-200 relative h-48 bg-slate-100">
-                    <img src="{{ Storage::disk('public')->url($app['login_bg']) }}" alt="" class="w-full h-full object-cover">
+                    <img src="{{ asset('storage/'.$app['login_bg']) }}" alt="" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent"></div>
                     <div class="absolute bottom-3 left-3 text-white text-xs font-semibold drop-shadow">Preview</div>
                 </div>

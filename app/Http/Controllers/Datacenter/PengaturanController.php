@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Storage;
  * Halaman Login yang tadinya terpisah di sidebar.
  *
  * Identitas Sekolah, Logo, dan Background Halaman Login yang diatur di sini
- * adalah SUMBER TUNGGAL yang disebarkan ke CBT & landing-page lewat endpoint
- * publik /api/v1/public/branding (lihat Api\PublicStatsController::branding()).
- * CBT tidak lagi punya form untuk itu — hanya tampilan salinan read-only.
+ * adalah SUMBER TUNGGAL yang dibaca langsung oleh CBT lewat koneksi database
+ * mysql_datacenter (lihat App\Providers\AppServiceProvider::datacenterBranding()
+ * di project CBT) — tanpa HTTP API antar-app. CBT tidak lagi punya form untuk
+ * itu — hanya tampilan salinan read-only.
  */
 class PengaturanController extends Controller
 {

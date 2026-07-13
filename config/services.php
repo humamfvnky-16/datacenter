@@ -35,9 +35,4 @@ return [
         ],
     ],
 
-    // Landing page publik sekolah (project terpisah — lihat "landing-page")
-    'landing' => [
-        'app_url' => env('LANDING_APP_URL', 'http://127.0.0.1:8003'),
-    ],
-
 ];
