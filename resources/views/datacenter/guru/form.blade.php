@@ -18,7 +18,7 @@
         <x-field name="jabatan" label="Jabatan" :value="$item->jabatan"/>
         <x-field type="select" name="status_kepegawaian" label="Status Kepegawaian" :value="$item->status_kepegawaian"
                  :options="['PNS'=>'PNS','PPPK'=>'PPPK','GTT'=>'GTT','Honorer'=>'Honorer']"/>
-        <x-field name="password" type="password" label="Password" :help="$item->exists ? 'Kosongkan jika tidak diubah' : 'Default sama dengan NIP'"/>
+        <x-field name="password" type="password" label="Password" :help="$item->exists ? 'Kosongkan jika tidak diubah' : 'Default sama dengan password'"/>
     </div>
     <x-field name="alamat" label="Alamat" :value="$item->alamat"/>
     <x-field type="checkbox" name="is_aktif" :value="$item->is_aktif ?? true"/>
