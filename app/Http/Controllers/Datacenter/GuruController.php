@@ -14,11 +14,14 @@ class GuruController extends Controller
         $items = Guru::when($r->q, function ($x) use ($r) {
                 $x->where('nama_ptk', 'like', "%{$r->q}%")
                   ->orWhere('nip', 'like', "%{$r->q}%");
-            })->orderBy('nama_ptk')->paginate(20)->withQueryString();
+            })->with('mapel')->orderBy('nama_ptk')->paginate(20)->withQueryString();
         return view('datacenter.guru.index', compact('items'));
     }
 
-    public function create() { return view('datacenter.guru.form', ['item' => new Guru()]); }
+    public function create()
+    {
+        return view('datacenter.guru.form', ['item' => new Guru(), 'mapelList' => $this->mapelList()]);
+    }
 
     public function store(Request $r)
     {
@@ -28,7 +31,17 @@ class GuruController extends Controller
         return redirect()->route('guru.index')->with('success', 'Data guru ditambahkan.');
     }
 
-    public function edit(Guru $guru) { return view('datacenter.guru.form', ['item' => $guru]); }
+    public function edit(Guru $guru)
+    {
+        return view('datacenter.guru.form', ['item' => $guru, 'mapelList' => $this->mapelList()]);
+    }
+
+    /** Daftar mapel aktif untuk pilihan "Guru Mata Pelajaran" di form. */
+    protected function mapelList()
+    {
+        return \App\Models\MataPelajaran::where('is_aktif', true)
+            ->orderBy('nama_mapel')->pluck('nama_mapel', 'id');
+    }
 
     public function update(Request $r, Guru $guru)
     {
@@ -119,6 +132,7 @@ class GuruController extends Controller
             'alamat' => 'nullable|string|max:255',
             'jabatan' => 'nullable|string|max:100',
             'status_kepegawaian' => 'nullable|string|max:50',
+            'mata_pelajaran_id' => 'nullable|integer|exists:mata_pelajaran,id',
             'password' => 'nullable|string|min:6',
             'is_aktif' => 'nullable|boolean',
         ]) + ['is_aktif' => $r->boolean('is_aktif', true)];
