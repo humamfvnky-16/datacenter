@@ -9,6 +9,7 @@ use App\Http\Controllers\Datacenter\JurusanController;
 use App\Http\Controllers\Datacenter\MataPelajaranController;
 use App\Http\Controllers\Datacenter\PengaturanController;
 use App\Http\Controllers\Datacenter\PeriodikalController;
+use App\Http\Controllers\Datacenter\ResetSiswaController;
 use App\Http\Controllers\Datacenter\RombelController;
 use App\Http\Controllers\Datacenter\SiswaController;
 use App\Http\Controllers\Datacenter\TahunAjaranController;
@@ -119,5 +120,12 @@ Route::middleware([
 
     Route::middleware('admin')->group(function () {
         Route::get('/log-login', [LogLoginController::class, 'index'])->name('log-login.index');
+
+        Route::prefix('reset-siswa')->name('reset-siswa.')->group(function () {
+            Route::get('/', [ResetSiswaController::class, 'index'])->name('index');
+            Route::post('/per-tingkat', [ResetSiswaController::class, 'perTingkat'])->name('per-tingkat');
+            Route::post('/per-rombel',  [ResetSiswaController::class, 'perRombel'])->name('per-rombel');
+            Route::post('/per-siswa',   [ResetSiswaController::class, 'perSiswa'])->name('per-siswa');
+        });
     });
 });
