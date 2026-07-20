@@ -126,6 +126,7 @@ Route::middleware([
             Route::post('/per-tingkat', [ResetSiswaController::class, 'perTingkat'])->name('per-tingkat');
             Route::post('/per-rombel',  [ResetSiswaController::class, 'perRombel'])->name('per-rombel');
             Route::post('/per-siswa',   [ResetSiswaController::class, 'perSiswa'])->name('per-siswa');
+            Route::post('/semua',       [ResetSiswaController::class, 'semua'])->name('semua');
         });
     });
 });

@@ -46,8 +46,10 @@ class ResetSiswaController extends Controller
                 ->orderBy('nama_siswa')->limit(25)->get();
         }
 
+        $totalSiswa = Siswa::count();
+
         return view('datacenter.reset-siswa.index', compact(
-            'tingkatList', 'rombelList', 'tahunAktif', 'siswaTingkat', 'siswaRombel', 'siswaHasil'
+            'tingkatList', 'rombelList', 'tahunAktif', 'siswaTingkat', 'siswaRombel', 'siswaHasil', 'totalSiswa'
         ));
     }
 
@@ -98,6 +100,23 @@ class ResetSiswaController extends Controller
 
         return redirect()->route('reset-siswa.index')
             ->with('success', "Data siswa {$nama} berhasil dihapus permanen.");
+    }
+
+    /** Hapus SELURUH data induk siswa. Frasa konfirmasi sengaja dibuat beda & lebih panjang dari cakupan lain. */
+    public function semua(Request $r)
+    {
+        $data = $r->validate([
+            'konfirmasi' => 'required|in:HAPUS SEMUA',
+        ]);
+
+        $count = DB::transaction(function () {
+            $count = Siswa::count();
+            Siswa::query()->delete();
+            return $count;
+        });
+
+        return redirect()->route('reset-siswa.index')
+            ->with('success', "Seluruh data siswa ({$count} siswa) berhasil dihapus permanen.");
     }
 
     /** Siswa yg penempatan rombelnya (tahun ajaran aktif) berada di tingkat tertentu. */

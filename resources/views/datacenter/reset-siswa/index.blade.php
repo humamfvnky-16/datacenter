@@ -3,7 +3,7 @@
 @section('breadcrumb', 'Data Center / Administrasi / Reset Data Siswa')
 
 @section('content')
-<x-page-header title="Reset Data Siswa" subtitle="Hapus permanen data induk siswa — per tingkat kelas, per rombel, atau per siswa"/>
+<x-page-header title="Reset Data Siswa" subtitle="Hapus permanen data induk siswa — per tingkat kelas, per rombel, per siswa, atau seluruhnya"/>
 
 <div class="card card-pad mb-6 text-sm text-rose-700" style="border:1px solid #fecdd3;background:#fff1f2;">
     <strong>Perhatian:</strong> Tindakan di halaman ini menghapus data induk siswa secara permanen (beserta
@@ -18,6 +18,7 @@
             'tingkat' => 'Per Tingkat Kelas',
             'rombel'  => 'Per Rombel',
             'siswa'   => 'Per Siswa',
+            'semua'   => 'Semua Siswa',
         ] as $key => $label)
             <button type="button" @click="tab='{{ $key }}'"
                     :class="tab==='{{ $key }}' ? 'bg-brand-600 text-white shadow-soft' : 'text-ink-600 hover:bg-slate-100'"
@@ -165,6 +166,30 @@
                     </table>
                 </div>
             @endif
+        @endif
+    </div>
+
+    {{-- ============ TAB SEMUA SISWA ============ --}}
+    <div x-show="tab==='semua'" x-cloak class="space-y-4">
+        <div class="card card-pad text-center py-6">
+            <p class="text-sm text-ink-500">Total data siswa saat ini</p>
+            <p class="text-4xl font-bold text-ink-900">{{ $totalSiswa }}</p>
+        </div>
+
+        @if($totalSiswa > 0)
+            <form method="POST" action="{{ route('reset-siswa.semua') }}"
+                  x-data="{ konfirmasi: '' }"
+                  class="card card-pad flex flex-wrap items-end gap-3 bg-rose-50/60">
+                @csrf
+                <div class="min-w-[320px]">
+                    <label class="label text-rose-700">Ketik <strong>HAPUS SEMUA</strong> untuk menghapus seluruh {{ $totalSiswa }} data siswa</label>
+                    <input type="text" name="konfirmasi" x-model="konfirmasi" class="input" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-danger" :disabled="konfirmasi !== 'HAPUS SEMUA'"
+                        :class="konfirmasi !== 'HAPUS SEMUA' ? 'opacity-50 cursor-not-allowed' : ''">
+                    <x-icon name="trash" class="w-4 h-4"/> Hapus Semua ({{ $totalSiswa }}) Siswa
+                </button>
+            </form>
         @endif
     </div>
 
